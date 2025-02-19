@@ -4,8 +4,10 @@ import { Server } from "socket.io";
 import path from "path";
 import axios from "axios";
 import cors from "cors";
+import dotenv from "dotenv"; // Import dotenv
 
-env.config();
+dotenv.config(); // Correct way to configure environment variables
+
 const app = express();
 const server = http.createServer(app);
 
