@@ -3,27 +3,16 @@ import http from "http";
 import { Server } from "socket.io";
 import path from "path";
 import axios from "axios";
+import cors from "cors";
 
+env.config();
 const app = express();
 const server = http.createServer(app);
 
-const url = `https://render-hosting-se2b.onrender.com`;
-const interval = 30000;
+// Allow CORS for frontend
+app.use(cors({ origin: process.env.FRONTEND_URL || "*" }));
 
-function reloadWebsite() {
-  axios
-    .get(url)
-    .then((response) => {
-      console.log("website reloded");
-    })
-    .catch((error) => {
-      console.error(`Error : ${error.message}`);
-    });
-}
-
-setInterval(reloadWebsite, interval);
-const io = new Server(server, { cors: { origin: "*" } });
-
+const io = new Server(server, { cors: { origin: process.env.FRONTEND_URL || "*" } });
 const rooms = new Map();
 const pistonApiUrl = process.env.PISTON_API_URL || "https://emkc.org/api/v2/piston/execute";
 
@@ -63,6 +52,6 @@ io.on("connection", (socket) => {
 });
 
 const port = process.env.PORT || 5000;
-app.use(express.static(path.join(path.resolve(), "/frontend/dist")));
+app.use(express.static(path.join(path.resolve(), "frontend/dist")));
 app.get("*", (_, res) => res.sendFile(path.join(path.resolve(), "frontend", "dist", "index.html")));
 server.listen(port, () => console.log(`Server running on port ${port}`));
