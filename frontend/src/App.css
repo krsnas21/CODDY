@@ -1,0 +1,322 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Roboto", sans-serif;
+  background-color: black;
+  color: white;
+}
+
+.join-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: url("coddynew.webp") no-repeat center center/cover;
+  background-position: center 20px;
+}
+
+.join-form {
+  background-color: rgba(0, 0, 0, 0.8);
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.9);
+  text-align: center;
+  width: 300px;
+  color: white;
+}
+
+h1 {
+  margin-bottom: 1.5rem;
+  color: rgb(19, 128, 237);
+  font-weight: bolder;
+  font-size: 2.3rem;
+}
+
+input {
+  width: 100%;
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+  border: 4px solid black;
+  border-radius: 4px;
+  font-size: 1.5rem;
+  background-color: transparent;
+  color: white;
+}
+
+button {
+  width: 100%;
+  padding: 12px 18px;
+  font-size: 1.5rem;
+  font-weight: bold;
+  background: linear-gradient(135deg, #58b5f9, #1c88e5); /* Subtle modern gradient */
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+  box-shadow: 0 4px 10px rgba(28, 136, 229, 0.3); /* Soft shadow for depth */
+  text-align: center;
+  display: inline-block;
+}
+
+button:hover {
+  background: linear-gradient(135deg, #1c88e5, #1368c7); /* Slightly darker gradient */
+  color: white;
+  transform: scale(1.05);
+  box-shadow: 0 6px 15px rgba(28, 136, 229, 0.4);
+}
+
+button:active {
+  transform: scale(1);
+  box-shadow: 0 2px 6px rgba(28, 136, 229, 0.2);
+}
+
+@media (max-width: 600px) {
+  button {
+    font-size: 1.2rem;
+    padding: 10px 14px;
+  }
+}
+
+
+.editor-container {
+  display: flex;
+  height: 100vh;
+  background-color: black;
+}
+
+.sidebar {
+  width: 320px; 
+  padding: 1.75rem;
+  background-color: rgb(23, 23, 23);
+  color: rgb(247, 251, 248);
+  box-sizing: border-box;
+}
+
+.room-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.room-info h2 {
+  margin-bottom: 1rem;
+  font-size: 1.2rem;
+}
+
+.copy-button {
+  position: relative;
+  width: 100%;
+  max-width: 250px;
+  padding: 0.75rem 1rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #918a08;  /* Dark gray for better readability */
+  background: #131313; /* Soft light gray */
+  border: 2px solid #ddd; /* Subtle border */
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.copy-button:hover {
+  background: #e0e0e0; /* Slightly darker shade on hover */
+  border-color: #ccc;
+  transform: translateY(-3px);
+}
+
+.copy-button:active {
+  transform: translateY(0);
+}
+
+.copy-button.copied {
+  background: #d4edda; /* Light green to indicate success */
+  color: #2d6834; /* Darker green for contrast */
+  border-color: #2d6834;
+}
+
+.copy-success {
+  margin-left: 0.5rem;
+  color: rgb(249, 251, 249);
+  font-size: 0.8rem;
+}
+
+h3 {
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+  font-size: 1rem;
+}
+
+ul {
+  list-style: none;
+}
+
+ul li {
+  padding: 0.5rem;
+  font-size: 0.9rem;
+  background-color: rgb(110, 102, 118);
+  margin-top: 5px;
+  border-radius: 5px;
+}
+
+.typing-indicator {
+  margin-top: 1rem;
+  font-size: 1rem;
+  color: white;
+}
+
+.language-selector {
+  margin-top: 1rem;
+  width: 100%;
+  padding: 1rem;
+  border: none;
+  font-size: 1rem;
+  background-color: rgb(32, 32, 31);
+  color: rgb(206, 191, 191);
+  border-radius: 8px;
+}
+
+.leave-button {
+  position: relative;
+  padding: 0.75rem 1.5rem;
+  margin-top: 2rem;
+  width: 100%;
+  background-color: #222; /* Dark background */
+  color: #f4e213; /* Yellow text */
+  border: none;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  overflow: hidden; /* Ensures gradient stays within button */
+  z-index: 1;
+}
+
+/* Moving Gradient Behind the Button */
+.leave-button::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 300%;
+  height: 100%;
+  background: linear-gradient(90deg, #ff8c00, #ff0080, #8000ff, #ff8c00); /* Gradient colors */
+  animation: moveGradient 3s linear infinite; /* Continuous movement */
+  z-index: -1;
+  opacity: 0.8; /* Slight transparency for smooth effect */
+}
+
+/* Make sure button text stays readable */
+.leave-button:hover {
+  color: #fff;
+}
+
+/* Continuous gradient animation */
+@keyframes moveGradient {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+
+.editor-wrapper {
+  flex-grow: 1;
+  background-color: rgb(144, 187, 251);
+  padding: 1rem;
+}
+
+.run-btn {
+  background: linear-gradient(135deg, #4caf50, #2e7d32); /* Modern green gradient */
+  padding: 14px 20px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  width: 100%;
+  max-width: 200px;
+  min-width: 120px;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  text-align: center;
+  display: inline-block;
+  transition: all 0.3s ease-in-out;
+  box-shadow: 0 5px 15px rgba(46, 125, 50, 0.3); /* Soft green shadow */
+  margin-top: 0.5rem;
+}
+
+.run-btn:hover {
+  background: linear-gradient(135deg, #388e3c, #1b5e20); /* Slightly darker green */
+  color: white;
+  transform: scale(1.07);
+  box-shadow: 0 8px 20px rgba(46, 125, 50, 0.4);
+}
+
+.run-btn:active {
+  transform: scale(1);
+  box-shadow: 0 4px 10px rgba(46, 125, 50, 0.2);
+}
+
+@media (max-width: 600px) {
+  .run-btn {
+    font-size: 1rem;
+    padding: 12px 16px;
+  }
+}
+
+
+.output-console {
+  width: 100%;
+  margin-top: 10px;
+  padding: 12px;
+  height: 200px;
+  font-size: 16px;
+  background-color: rgb(32, 32, 31);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  resize: vertical;
+  font-family: monospace;
+  box-sizing: border-box;
+}
+
+textarea:focus {
+  outline: none;
+}
+
+@media (max-width: 600px) {
+  .output-console {
+    height: 150px;
+    font-size: 14px;
+    padding: 10px;
+  }
+
+  .sidebar {
+    width: 280px;
+    padding: 1.5rem;
+  }
+}
+
+@media (max-width: 400px) {
+  .output-console {
+    height: 120px;
+    font-size: 12px;
+    padding: 8px;
+  }
+
+  .sidebar {
+    width: 260px;
+    padding: 1.2rem;
+  }
+}
