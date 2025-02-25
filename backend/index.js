@@ -11,7 +11,7 @@ import cors from "cors";
 const app = express();
 const server = http.createServer(app);
 
-const url = `https://render-hosting-se2b.onrender.com`;
+const url = `https://coddy-4tjh.onrender.com`;
 const interval = 30000;
 
 function reloadWebsite() {
