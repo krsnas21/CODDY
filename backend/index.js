@@ -9,24 +9,27 @@ import cors from "cors";
 
 const app = express();
 const server = http.createServer(app);
-const PORT = process.env.PORT || 10000; // Ensure correct port
+const PORT = process.env.PORT || 10000;
 
-app.use(cors({ origin: "*" })); // Allow all origins
+// ✅ Allow requests from your frontend
+app.use(cors({ origin: "*" }));
+app.use(express.json());
 
 const io = new Server(server, { cors: { origin: "*" } });
-const rooms = new Map();
-const pistonApiUrl = process.env.PISTON_API_URL || "https://emkc.org/api/v2/piston/execute";
 
-// Log when user connects
+// ✅ API Route Test
+app.get("/", (_, res) => res.send("API is working! 🚀"));
+
+const rooms = new Map();
+const pistonApiUrl = "https://emkc.org/api/v2/piston/execute";
+
 io.on("connection", (socket) => {
   console.log(`User Connected: ${socket.id}`);
 
   socket.on("join", ({ roomId, userName }) => {
-    if (!roomId || !userName) return socket.emit("error", "Invalid roomId or username");
-
+    if (!roomId || !userName) return;
     if (!rooms.has(roomId)) rooms.set(roomId, new Set());
     rooms.get(roomId).add(userName);
-
     socket.join(roomId);
     io.to(roomId).emit("userJoined", Array.from(rooms.get(roomId)));
   });
@@ -57,12 +60,8 @@ io.on("connection", (socket) => {
     socket.leave(roomId);
   });
 
-  socket.on("disconnect", () => {
-    console.log("User Disconnected");
-  });
+  socket.on("disconnect", () => console.log("User Disconnected"));
 });
 
-// **Important Fix: Default API Route**
-app.get("/", (_, res) => res.send("API is live! 🚀"));
-
-server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+// ✅ Start server
+server.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
