@@ -11,6 +11,22 @@ import cors from "cors";
 const app = express();
 const server = http.createServer(app);
 
+const url = `https://render-hosting-se2b.onrender.com`;
+const interval = 30000;
+
+function reloadWebsite() {
+  axios
+    .get(url)
+    .then((response) => {
+      console.log("website reloded");
+    })
+    .catch((error) => {
+      console.error(`Error : ${error.message}`);
+    });
+}
+
+setInterval(reloadWebsite, interval);
+
 app.use(cors({ origin: process.env.FRONTEND_URL || "*" }));
 
 const io = new Server(server, { cors: { origin: process.env.FRONTEND_URL || "*" } });
