@@ -3,44 +3,36 @@ import "./App.css";
 import io from 'socket.io-client';
 import Editor from '@monaco-editor/react';
 
-const socket = io("https://coddy-4tjh.onrender.com");
+const API_URL = "https://your-render-backend.onrender.com"; // Change this to your Render backend URL
+const socket = io(API_URL, { transports: ["websocket"] });
 
 const App = () => {
   const [joined, setJoined] = useState(false);
   const [roomId, setRoomId] = useState("");
   const [userName, setUserName] = useState("");
   const [language, setLanguage] = useState("javascript");
-  const [code, setCode] = useState("// start code here");
-  const [copySuccess, setCopySuccess] = useState("");
+  const [code, setCode] = useState("// start coding here...");
   const [users, setUsers] = useState([]);
   const [typingUser, setTypingUser] = useState("");
   const [output, setOutput] = useState("");
-  const [version, setVersion] = useState("*");
+  const [copySuccess, setCopySuccess] = useState("");
 
   useEffect(() => {
-    const events = [
-      { event: "userJoined", handler: handleUserJoined },
-      { event: "codeUpdate", handler: handleCodeUpdate },
-      { event: "userTyping", handler: handleUserTyping },
-      { event: "languageUpdate", handler: handleLanguageUpdate },
-      { event: "codeResponse", handler: handleCodeResponse },
-    ];
+    if (!socket) return;
 
-    events.forEach(({ event, handler }) => socket.on(event, handler));
+    socket.on("userJoined", (usersList) => setUsers(usersList));
+    socket.on("codeUpdate", (newCode) => setCode(newCode));
+    socket.on("userTyping", (user) => {
+      setTypingUser(`${user.slice(0, 8)}... is typing`);
+      setTimeout(() => setTypingUser(""), 2000);
+    });
+    socket.on("languageUpdate", (newLang) => setLanguage(newLang));
+    socket.on("codeResponse", (response) => {
+      setOutput(response?.run?.output || "Error executing code.");
+    });
 
-    return () => {
-      events.forEach(({ event, handler }) => socket.off(event, handler));
-    };
+    return () => socket.disconnect();
   }, []);
-
-  const handleUserJoined = (usersList) => setUsers(usersList);
-  const handleCodeUpdate = (newCode) => setCode(newCode);
-  const handleUserTyping = (user) => {
-    setTypingUser(`${user.slice(0, 8)}.... is typing`);
-    setTimeout(() => setTypingUser(""), 2000);
-  };
-  const handleLanguageUpdate = (newLanguage) => setLanguage(newLanguage);
-  const handleCodeResponse = (response) => setOutput(response.run?.output || "Error executing code.");
 
   const joinRoom = () => {
     if (roomId && userName) {
@@ -49,23 +41,13 @@ const App = () => {
     }
   };
 
-  const handleKeyPress = (e) => {
-    if (e.key === "Enter") joinRoom();
-  };
-
   const leaveRoom = () => {
-    socket.emit("leaveRoom");
+    socket.emit("leaveRoom", { roomId, userName });
     setJoined(false);
     setRoomId("");
     setUserName("");
-    setCode("// start code here");
+    setCode("// start coding here...");
     setLanguage("javascript");
-  };
-
-  const copyRoomId = () => {
-    navigator.clipboard.writeText(roomId);
-    setCopySuccess("Copied");
-    setTimeout(() => setCopySuccess(""), 2000);
   };
 
   const handleCodeChange = (newCode) => {
@@ -74,53 +56,42 @@ const App = () => {
   };
 
   const handleLanguageChange = (e) => {
-    const newLanguage = e.target.value;
-    setLanguage(newLanguage);
-    socket.emit("languageChange", { roomId, language: newLanguage });
+    const newLang = e.target.value;
+    setLanguage(newLang);
+    socket.emit("languageChange", { roomId, language: newLang });
   };
 
   const runCode = () => {
-    socket.emit("compilecode", { code, roomId, language, version });
+    socket.emit("compilecode", { code, roomId, language });
   };
 
-  if (!joined) {
-    return (
-      <div className="join-container">
-        <div className="join-form">
-          <h1><b>Start Collaboration</b></h1>
-          <input type="text" placeholder="Room Id" value={roomId} onChange={(e) => setRoomId(e.target.value)} onKeyDown={handleKeyPress} />
-          <input type="text" placeholder="Your Name" value={userName} onChange={(e) => setUserName(e.target.value)} onKeyDown={handleKeyPress} />
-          <button onClick={joinRoom}>Join Room</button>
-        </div>
-      </div>
-    );
-  }
-
-  return (
+  return !joined ? (
+    <div className="join-container">
+      <h1>Join a Code Room</h1>
+      <input type="text" placeholder="Room ID" value={roomId} onChange={(e) => setRoomId(e.target.value)} />
+      <input type="text" placeholder="Your Name" value={userName} onChange={(e) => setUserName(e.target.value)} />
+      <button onClick={joinRoom}>Join Room</button>
+    </div>
+  ) : (
     <div className="editor-container">
       <div className="sidebar">
-        <div className="room-info">
-          <h2>Code Room: {roomId}</h2>
-          <button onClick={copyRoomId} className="copy-button">Copy ID</button>
-          {copySuccess && <span className="copy-success">{copySuccess}</span>}
-        </div>
-        <h3>Users in Room:</h3>
-        <ul>{users.map((user, index) => (<li key={index}>{user.slice(0, 8)}....</li>))}</ul>
-        <p className="typing-indicator">{typingUser}</p>
-        <select className="language-selector" value={language} onChange={handleLanguageChange}>
-          <option value="javascript">Javascript</option>
+        <h2>Room: {roomId}</h2>
+        <button onClick={() => navigator.clipboard.writeText(roomId)}>Copy Room ID</button>
+        <ul>{users.map((user, i) => (<li key={i}>{user}</li>))}</ul>
+        <p>{typingUser}</p>
+        <select value={language} onChange={handleLanguageChange}>
+          <option value="javascript">JavaScript</option>
           <option value="python">Python</option>
           <option value="java">Java</option>
           <option value="cpp">C++</option>
-          <option value="c">C</option>
         </select>
-        <button className="leave-button" onClick={leaveRoom}>Leave Room</button>
+        <button onClick={leaveRoom}>Leave Room</button>
       </div>
 
       <div className="editor-wrapper">
-        <Editor height={"60%"} language={language} value={code} onChange={handleCodeChange} theme="vs-dark" options={{ minimap: { enabled: false }, fontSize: 14 }} />
-        <button className="run-btn" onClick={runCode}>RUN</button>
-        <textarea className="output-console" value={output} readOnly placeholder="Output..."></textarea>
+        <Editor height="60%" language={language} value={code} onChange={handleCodeChange} theme="vs-dark" />
+        <button onClick={runCode}>Run Code</button>
+        <textarea value={output} readOnly placeholder="Output will appear here..."></textarea>
       </div>
     </div>
   );
