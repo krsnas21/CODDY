@@ -1,17 +1,16 @@
+import dotenv from "dotenv";
+dotenv.config();
+
 import express from "express";
 import http from "http";
 import { Server } from "socket.io";
 import path from "path";
 import axios from "axios";
 import cors from "cors";
-import dotenv from "dotenv"; // Import dotenv
-
-dotenv.config(); // Correct way to configure environment variables
 
 const app = express();
 const server = http.createServer(app);
 
-// Allow CORS for frontend
 app.use(cors({ origin: process.env.FRONTEND_URL || "*" }));
 
 const io = new Server(server, { cors: { origin: process.env.FRONTEND_URL || "*" } });
@@ -43,14 +42,22 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on("leaveRoom", () => {
+  socket.on("leaveRoom", ({ roomId, userName }) => {
+    if (rooms.has(roomId)) {
+      rooms.get(roomId).delete(userName);
+      if (rooms.get(roomId).size === 0) rooms.delete(roomId);
+      io.to(roomId).emit("userJoined", Array.from(rooms.get(roomId) || []));
+    }
+    socket.leave(roomId);
+  });
+
+  socket.on("disconnect", () => {
     rooms.forEach((users, roomId) => {
       users.delete(socket.id);
       if (!users.size) rooms.delete(roomId);
     });
+    console.log("User disconnected");
   });
-
-  socket.on("disconnect", () => console.log("User disconnected"));
 });
 
 const port = process.env.PORT || 5000;
